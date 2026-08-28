@@ -1,9 +1,9 @@
 # MCP Cockpit（驾驶舱）
 
-[mcp-hub](https://github.com/qwibitai/mcp-hub) 网关的**零依赖 Web 管理台 + 自动恢复看门狗**。
+[mcp-hub](https://github.com/ravitemer/mcp-hub) 网关的**零依赖 Web 管理台 + 自动恢复看门狗**。
 单文件 Node 后端（`server.js`）+ 单页前端（`index.html`），无 package.json、无需安装任何依赖。
 
-A **zero-dependency web cockpit & auto-recovery watchdog** for the [mcp-hub](https://github.com/qwibitai/mcp-hub) gateway. One Node file (`server.js`) + one HTML page (`index.html`) — no package.json, nothing to install.
+A **zero-dependency web cockpit & auto-recovery watchdog** for the [mcp-hub](https://github.com/ravitemer/mcp-hub) gateway. One Node file (`server.js`) + one HTML page (`index.html`) — no package.json, nothing to install.
 
 **[🇨🇳 中文文档（含小白部署向导）](#-中文文档)** · **[🇬🇧 English docs (beginner deployment guide)](#-english-docs)**
 
@@ -13,7 +13,7 @@ A **zero-dependency web cockpit & auto-recovery watchdog** for the [mcp-hub](htt
 
 ### 这是什么？
 
-你在本机跑了一个 [mcp-hub](https://github.com/qwibitai/mcp-hub) 网关，把多个 MCP 服务器（文件系统、数据库、搜索……）聚合成一个统一端点。但 mcp-hub 本身**没有图形界面**——想增删服务器、看工具列表、测试调用，只能敲 API。
+你在本机跑了一个 [mcp-hub](https://github.com/ravitemer/mcp-hub) 网关，把多个 MCP 服务器（文件系统、数据库、搜索……）聚合成一个统一端点。但 mcp-hub 本身**没有图形界面**——想增删服务器、看工具列表、测试调用，只能敲 API。
 
 MCP Cockpit 补上这块：一个浏览器里的管理台，加上一个会在上游服务器挂掉时自动重启网关的看门狗。
 
@@ -241,13 +241,23 @@ mcp-cockpit/
 MIT © Sovena contributors、西南大学·艺术人类学研究所、西南大学·中国音乐心理健康研究所
 作者：石丰恺（sfklc@hotmail.com）。完整条款见 [LICENSE](LICENSE)。
 
+### 致谢（Acknowledgments）
+
+本项目构建于以下开源项目之上：
+
+- [mcp-hub](https://github.com/ravitemer/mcp-hub)（MIT）—— 被管理的 MCP 网关本体；本项目仅通过其 HTTP API 交互，未复制其代码
+- [Model Context Protocol（MCP）](https://github.com/modelcontextprotocol/modelcontextprotocol) —— 本项目所管理的服务器遵循的协议规范
+- [MCP 官方参考实现](https://github.com/modelcontextprotocol/servers) —— README 示例中的 `@modelcontextprotocol/server-filesystem` 即出自此仓库
+- [Context7](https://context7.com) —— README 示例中使用的远程 MCP 服务
+- [Node.js](https://nodejs.org)（MIT）—— 运行时；本项目零第三方依赖，仅使用 Node 内置模块
+
 ---
 
 ## 🇬🇧 English docs
 
 ### What is this?
 
-You run a local [mcp-hub](https://github.com/qwibitai/mcp-hub) gateway that aggregates many MCP servers (filesystem, databases, search…) into one endpoint. But mcp-hub ships **no GUI** — managing servers means poking at raw APIs.
+You run a local [mcp-hub](https://github.com/ravitemer/mcp-hub) gateway that aggregates many MCP servers (filesystem, databases, search…) into one endpoint. But mcp-hub ships **no GUI** — managing servers means poking at raw APIs.
 
 MCP Cockpit fills that gap: a browser-based admin console, plus an auto-recovery watchdog that restarts the gateway when upstream servers die.
 
@@ -470,3 +480,13 @@ mcp-cockpit/
 
 MIT © Sovena contributors, 西南大学·艺术人类学研究所 (Institute of Art Anthropology, Southwest University), 西南大学·中国音乐心理健康研究所 (China Music Mental Health Research Institute, Southwest University)
 Author: 石丰恺 (sfklc@hotmail.com). Full text in [LICENSE](LICENSE).
+
+### Acknowledgments
+
+This project is built on top of the following open-source work:
+
+- [mcp-hub](https://github.com/ravitemer/mcp-hub) (MIT) — the MCP gateway being managed; this project talks to it over its HTTP API and copies none of its code
+- [Model Context Protocol (MCP)](https://github.com/modelcontextprotocol/modelcontextprotocol) — the protocol specification followed by the managed servers
+- [MCP official reference servers](https://github.com/modelcontextprotocol/servers) — source of `@modelcontextprotocol/server-filesystem` used in the README example
+- [Context7](https://context7.com) — remote MCP service used in the README example
+- [Node.js](https://nodejs.org) (MIT) — runtime; this project has zero third-party dependencies and uses only Node built-ins
