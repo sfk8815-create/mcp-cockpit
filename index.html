@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MCP Cockpit · MCP 网关管理台</title>
+<title>MCP Cockpit（MCP 驾驶舱）</title>
 <style>
 :root {
   --bg: #0b1120;
@@ -186,70 +186,71 @@ h1 { font-size: 19px; font-weight: 700; letter-spacing: .2px; }
       </svg>
     </div>
     <div>
-      <h1>MCP 网关管理台</h1>
-      <div class="sub" id="subtitle">正在连接网关…</div>
+      <h1>MCP Cockpit（MCP 驾驶舱）</h1>
+      <div class="sub" id="subtitle" data-i18n="subtitleInit">正在连接网关…</div>
     </div>
+    <button class="btn" id="langBtn" onclick="toggleLang()" title="Switch UI language / 切换界面语言">🌐 中文</button>
     <div class="spacer"></div>
-    <span class="pill warn" id="statePill"><span class="dot"></span><span id="stateText">连接中</span></span>
-    <span class="pill ok" id="arPill" title="自动恢复：监控上游持续断开并自动重启网关"><span class="dot"></span><span id="arText">自愈监控中</span></span>
-    <button class="btn" onclick="loadAll(true)" title="重新拉取网关状态">⟳ 刷新</button>
-    <button class="btn primary" onclick="openAdd()">＋ 添加服务器</button>
+    <span class="pill warn" id="statePill"><span class="dot"></span><span id="stateText" data-i18n="connecting">连接中</span></span>
+    <span class="pill ok" id="arPill" data-i18n-title="arTitle"><span class="dot"></span><span id="arText" data-i18n="arWatch">自愈监控中</span></span>
+    <button class="btn" onclick="loadAll(true)" data-i18n-title="refreshTip" data-i18n="refreshBtn">⟳ 刷新</button>
+    <button class="btn primary" onclick="openAdd()" data-i18n="addServer">＋ 添加服务器</button>
   </header>
 
   <div class="stats">
-    <div class="stat"><div class="k">已注册服务器</div><div class="v" id="statServers">–</div></div>
-    <div class="stat"><div class="k">聚合工具总数</div><div class="v" id="statTools">–</div></div>
-    <div class="stat"><div class="k">网关状态</div><div class="v" id="statState" style="font-size:17px;padding-top:8px">–</div></div>
+    <div class="stat"><div class="k" data-i18n="statServers">已注册服务器</div><div class="v" id="statServers">–</div></div>
+    <div class="stat"><div class="k" data-i18n="statTools">聚合工具总数</div><div class="v" id="statTools">–</div></div>
+    <div class="stat"><div class="k" data-i18n="statState">网关状态</div><div class="v" id="statState" style="font-size:17px;padding-top:8px">–</div></div>
   </div>
 
   <div class="grid" id="grid"></div>
-  <div class="empty" id="empty" style="display:none">
+  <div class="empty" id="empty" style="display:none" data-i18n-html="empty">
     还没有任何 MCP 服务器。<br><br>点击右上角 <b>＋ 添加服务器</b>，或直接编辑<br>
     <code>~/.config/mcp-hub/servers.json</code>（网关会自动热加载）
   </div>
 
-  <div class="footnote" id="arFoot">配置目录已纳入 git 管理 · 变更自动热加载 · 网关仅监听回环地址</div>
+  <div class="footnote" id="arFoot" data-i18n-html="arFoot">配置目录已纳入 git 管理 · 变更自动热加载 · 网关仅监听回环地址</div>
 </div>
 
 <!-- 添加/编辑 -->
 <div class="overlay" id="editOverlay">
   <div class="modal">
-    <h2 id="editTitle">添加服务器</h2>
+    <h2 id="editTitle" data-i18n="editAdd">添加服务器</h2>
     <input type="hidden" id="f_orig">
     <div class="row">
-      <label>名称（唯一，字母/数字/_/-/.）</label>
+      <label data-i18n="lblName">名称（唯一，字母/数字/_/-/.）</label>
       <input id="f_name" placeholder="例如 filesystem">
     </div>
     <div class="row">
-      <label>类型</label>
+      <label data-i18n="lblType">类型</label>
       <select id="f_type" onchange="toggleType()">
-        <option value="stdio">stdio（本地进程）</option>
-        <option value="sse">SSE（远程端点）</option>
-        <option value="http">HTTP / Streamable（远程端点）</option>
+        <option value="stdio" data-i18n="typeStdio">stdio（本地进程）</option>
+        <option value="sse" data-i18n="typeSse">SSE（远程端点）</option>
+        <option value="http" data-i18n="typeHttp">HTTP / Streamable（远程端点）</option>
       </select>
     </div>
     <div id="f_remote_row" class="row">
-      <label>URL</label>
+      <label data-i18n="lblUrl">URL</label>
       <input id="f_url" placeholder="https://mcp.example.com/mcp">
     </div>
     <div id="f_stdio_row">
       <div class="row">
-        <label>命令</label>
+        <label data-i18n="lblCmd">命令</label>
         <input id="f_command" placeholder="例如 npx 或 /usr/bin/python3">
       </div>
       <div class="row">
-        <label>参数（每行一个）</label>
+        <label data-i18n="lblArgs">参数（每行一个）</label>
         <textarea id="f_args" placeholder="-y&#10;@modelcontextprotocol/server-filesystem&#10;/home/sfk/Work"></textarea>
       </div>
     </div>
     <div class="row">
-      <label>环境变量 / 请求头（每行 KEY=VALUE，可选）</label>
+      <label data-i18n="lblEnv">环境变量 / 请求头（每行 KEY=VALUE，可选）</label>
       <textarea id="f_env" placeholder="API_TOKEN=xxx"></textarea>
-      <div class="hint">stdio 服务器写入 env；远程服务器写入 headers。密钥建议引用 ${env:VAR}，实际值放 ~/.config/mcp-hub/.env</div>
+      <div class="hint" data-i18n="envHint">stdio 服务器写入 env；远程服务器写入 headers。密钥建议引用 ${env:VAR}，实际值放 ~/.config/mcp-hub/.env</div>
     </div>
     <div class="actions">
-      <button class="btn" onclick="closeOverlay('editOverlay')">取消</button>
-      <button class="btn primary" onclick="saveServer()">保存</button>
+      <button class="btn" onclick="closeOverlay('editOverlay')" data-i18n="cancel">取消</button>
+      <button class="btn primary" onclick="saveServer()" data-i18n="save">保存</button>
     </div>
   </div>
 </div>
@@ -257,25 +258,25 @@ h1 { font-size: 19px; font-weight: 700; letter-spacing: .2px; }
 <!-- 测试工具 -->
 <div class="overlay" id="testOverlay">
   <div class="modal">
-    <h2>测试工具调用</h2>
+    <h2 data-i18n="testTitle">测试工具调用</h2>
     <div class="grid2">
       <div class="row">
-        <label>服务器</label>
+        <label data-i18n="lblServer">服务器</label>
         <select id="t_server" onchange="fillTools()"></select>
       </div>
       <div class="row">
-        <label>工具</label>
+        <label data-i18n="lblTool">工具</label>
         <select id="t_tool"></select>
       </div>
     </div>
     <div class="row">
-      <label>参数（JSON）</label>
+      <label data-i18n="lblArgsJson">参数（JSON）</label>
       <textarea id="t_args" rows="4">{
 }</textarea>
     </div>
     <div class="actions">
-      <button class="btn" onclick="closeOverlay('testOverlay')">关闭</button>
-      <button class="btn primary" onclick="runTool()" id="t_run">运行</button>
+      <button class="btn" onclick="closeOverlay('testOverlay')" data-i18n="close">关闭</button>
+      <button class="btn primary" onclick="runTool()" id="t_run" data-i18n="run">运行</button>
     </div>
     <div class="result" id="t_result" style="display:none"><pre id="t_pre"></pre></div>
   </div>
@@ -286,6 +287,78 @@ h1 { font-size: 19px; font-weight: 700; letter-spacing: .2px; }
 <script>
 let health = null;
 let config = null;
+
+// ---------- i18n（默认英文）----------
+let LANG = localStorage.getItem('mc_lang') || 'en';
+const I18N = {
+  en: {
+    subtitleInit: 'Connecting to gateway…', connecting: 'Connecting', running: 'Running', unreachable: 'Gateway unreachable',
+    refreshBtn: '⟳ Refresh', refreshTip: 'Re-fetch gateway state', addServer: '+ Add server',
+    arWatch: 'Self-healing watch', arTitle: 'Auto-recovery: polls every {p}s, restarts the gateway after {th} consecutive failures (cooldown {c}min)',
+    arRestarted: 'Auto-restarted at {x}', arCooldown: 'Self-healing cooldown', arUnreach: 'Gateway unreachable ×{n}',
+    arTitleReason: 'Auto-recovery: {r} · last restart {x}\nCause: {why}',
+    arFoot: 'Config dir under git management · changes hot-load automatically · gateway binds loopback only',
+    arFootReason: 'Last auto-recovery {x}: {why}',
+    statServers: 'Registered servers', statTools: 'Total tools', statState: 'Gateway state',
+    empty: 'No MCP servers yet.<br><br>Click <b>+ Add server</b> top-right, or edit<br><code>~/.config/mcp-hub/servers.json</code> directly (the gateway hot-reloads it).',
+    subtitleClients: ' · {n} connected client(s)', connFail: 'Cannot reach gateway: ',
+    gridUnreach: '<div class="empty">Cannot reach the gateway.<br>Linux: <code>systemctl --user status mcp-hub</code></div>',
+    stConnected: 'Connected', stConnecting: 'Connecting', stError: 'Error', stDisconnected: 'Disconnected',
+    toolsN: '{n} tools', noTools: 'No tools', upFor: 'up {x}',
+    btnTest: '▶ Test', btnReconnect: '⟳ Reconnect', btnEdit: '✎ Edit', btnDelete: '🗑 Delete',
+    editAdd: 'Add server', editEdit: 'Edit server: {n}',
+    lblName: 'Name (unique: letters / digits / _ / - / .)', lblType: 'Type',
+    typeStdio: 'stdio (local process)', typeSse: 'SSE (remote endpoint)', typeHttp: 'HTTP / Streamable (remote endpoint)',
+    lblUrl: 'URL', lblCmd: 'Command', lblArgs: 'Arguments (one per line)',
+    lblEnv: 'Env vars / headers (one KEY=VALUE per line, optional)',
+    envHint: 'stdio servers write to env; remote servers write to headers. For secrets, prefer ${env:VAR} references with real values in ~/.config/mcp-hub/.env',
+    cancel: 'Cancel', save: 'Save', testTitle: 'Test tool call', lblServer: 'Server', lblTool: 'Tool',
+    lblArgsJson: 'Arguments (JSON)', close: 'Close', run: 'Run', running2: 'Running…',
+    badJson: 'Arguments are not valid JSON', savedStdio: 'Saved (stdio)', savedRemote: 'Saved (remote)',
+    confirmDel: 'Delete server {n}?\nAfter the gateway hot-reloads, all clients lose its tools immediately.',
+    deleted: 'Deleted {n}', refreshed: 'Refreshed {n}'
+  },
+  zh: {
+    subtitleInit: '正在连接网关…', connecting: '连接中', running: '运行中', unreachable: '网关不可达',
+    refreshBtn: '⟳ 刷新', refreshTip: '重新拉取网关状态', addServer: '＋ 添加服务器',
+    arWatch: '自愈监控中', arTitle: '自动恢复：每 {p}s 轮询，连续 {th} 次断开即自动重启网关（冷却 {c}min）',
+    arRestarted: '已自动重启 {x}', arCooldown: '自愈冷却中', arUnreach: '网关不可达 ×{n}',
+    arTitleReason: '自动恢复：{r} · 最近重启 {x}\n原因：{why}',
+    arFoot: '配置目录已纳入 git 管理 · 变更自动热加载 · 网关仅监听回环地址',
+    arFootReason: '最近自动恢复 {x}：{why}',
+    statServers: '已注册服务器', statTools: '聚合工具总数', statState: '网关状态',
+    empty: '还没有任何 MCP 服务器。<br><br>点击右上角 <b>＋ 添加服务器</b>，或直接编辑<br><code>~/.config/mcp-hub/servers.json</code>（网关会自动热加载）',
+    subtitleClients: ' · {n} 个已连接客户端', connFail: '无法连接网关：',
+    gridUnreach: '<div class="empty">无法连接网关。<br>Linux: <code>systemctl --user status mcp-hub</code></div>',
+    stConnected: '已连接', stConnecting: '连接中', stError: '错误', stDisconnected: '未连接',
+    toolsN: '{n} 个工具', noTools: '无工具', upFor: '运行 {x}',
+    btnTest: '▶ 测试', btnReconnect: '⟳ 重连', btnEdit: '✎ 编辑', btnDelete: '🗑 删除',
+    editAdd: '添加服务器', editEdit: '编辑服务器：{n}',
+    lblName: '名称（唯一，字母/数字/_/-/.）', lblType: '类型',
+    typeStdio: 'stdio（本地进程）', typeSse: 'SSE（远程端点）', typeHttp: 'HTTP / Streamable（远程端点）',
+    lblUrl: 'URL', lblCmd: '命令', lblArgs: '参数（每行一个）',
+    lblEnv: '环境变量 / 请求头（每行 KEY=VALUE，可选）',
+    envHint: 'stdio 服务器写入 env；远程服务器写入 headers。密钥建议引用 ${env:VAR}，实际值放 ~/.config/mcp-hub/.env',
+    cancel: '取消', save: '保存', testTitle: '测试工具调用', lblServer: '服务器', lblTool: '工具',
+    lblArgsJson: '参数（JSON）', close: '关闭', run: '运行', running2: '运行中…',
+    badJson: '参数不是合法 JSON', savedStdio: '已保存（stdio）', savedRemote: '已保存（远程）',
+    confirmDel: '确定删除服务器 {n}？\n网关热加载后所有客户端将立即失去它的工具。',
+    deleted: '已删除 {n}', refreshed: '已刷新 {n}'
+  }
+};
+const t = (k, vars) => {
+  let s = I18N[LANG][k] || I18N.en[k] || k;
+  if (vars) for (const [k2, v] of Object.entries(vars)) s = s.split('{' + k2 + '}').join(v);
+  return s;
+};
+function applyLang() {
+  document.documentElement.lang = LANG === 'en' ? 'en' : 'zh-CN';
+  document.getElementById('langBtn').textContent = LANG === 'en' ? '🌐 中文' : '🌐 EN';
+  document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-html]').forEach((el) => { el.innerHTML = t(el.dataset.i18nHtml); });
+  document.querySelectorAll('[data-i18n-title]').forEach((el) => { el.title = t(el.dataset.i18nTitle); });
+}
+function toggleLang() { LANG = LANG === 'en' ? 'zh' : 'en'; localStorage.setItem('mc_lang', LANG); applyLang(); loadAll(true); }
 
 async function api(path, opts) {
   const r = await fetch(path, opts);
@@ -311,7 +384,7 @@ function statusPill(state) {
   const pill = document.getElementById('statePill');
   const txt = document.getElementById('stateText');
   pill.className = 'pill ' + (state === 'ready' ? 'ok' : (state === 'starting' || state === 'restarting' ? 'warn' : 'err'));
-  txt.textContent = state === 'ready' ? '运行中' : state;
+  txt.textContent = state === 'ready' ? t('running') : state;
 }
 
 async function loadAll(silent) {
@@ -320,15 +393,15 @@ async function loadAll(silent) {
     health = h; config = c;
     render();
     document.getElementById('subtitle').textContent =
-      `mcp-hub v${h.version} · 127.0.0.1:8811/mcp` + (h.activeClients != null ? ` · ${h.activeClients} 个已连接客户端` : '');
+      `mcp-hub v${h.version} · 127.0.0.1:8811/mcp` + (h.activeClients != null ? t('subtitleClients', { n: h.activeClients }) : '');
     loadAr();
   } catch (e) {
     statusPill('err');
-    document.getElementById('stateText').textContent = '网关不可达';
-    document.getElementById('subtitle').textContent = '无法连接网关：' + e.message;
+    document.getElementById('stateText').textContent = t('unreachable');
+    document.getElementById('subtitle').textContent = t('connFail') + e.message;
     document.getElementById('grid').innerHTML =
-      '<div class="empty">无法连接网关。<br>Linux: <code>systemctl --user status mcp-hub</code></div>';
-    if (!silent) toast('网关不可达', 'err');
+      t('gridUnreach');
+    if (!silent) toast(t('unreachable'), 'err');
   }
 }
 
@@ -338,20 +411,20 @@ async function loadAr() {
     const pill = document.getElementById('arPill');
     const txt = document.getElementById('arText');
     const foot = document.getElementById('arFoot');
-    let cls = 'ok', label = '自愈监控中';
-    const t = a.lastRestartAt ? new Date(a.lastRestartAt).toLocaleTimeString('zh-CN', { hour12: false }) : null;
-    if (a.lastResult === 'triggered') { cls = 'warn'; label = `已自动重启 ${t}`; }
-    else if (a.lastResult === 'skipped-cooldown') { cls = 'warn'; label = '自愈冷却中'; }
-    else if (a.lastResult === 'gateway-unreachable') { cls = 'err'; label = `网关不可达 ×${a.unreachableStreak}`; }
+    let cls = 'ok', label = t('arWatch');
+    const tt = a.lastRestartAt ? new Date(a.lastRestartAt).toLocaleTimeString(LANG === 'en' ? 'en-US' : 'zh-CN', { hour12: false }) : null;
+    if (a.lastResult === 'triggered') { cls = 'warn'; label = t('arRestarted', { x: tt }); }
+    else if (a.lastResult === 'skipped-cooldown') { cls = 'warn'; label = t('arCooldown'); }
+    else if (a.lastResult === 'gateway-unreachable') { cls = 'err'; label = t('arUnreach', { n: a.unreachableStreak }); }
     pill.className = 'pill ' + cls;
     txt.textContent = label;
     pill.title = a.lastReason
-      ? `自动恢复：${a.lastResult} · 最近重启 ${t || '—'}\n原因：${a.lastReason}`
-      : `自动恢复：每 ${a.pollMs / 1000}s 轮询，连续 ${a.threshold} 次断开即自动重启网关（冷却 ${Math.round(a.cooldownMs / 60000)}min）`;
+      ? t('arTitleReason', { r: a.lastResult, x: tt || '—', why: a.lastReason })
+      : t('arTitle', { p: a.pollMs / 1000, th: a.threshold, c: Math.round(a.cooldownMs / 60000) });
     if (a.lastReason) {
-      foot.innerHTML = `配置目录已纳入 git 管理 · 变更自动热加载 · 网关仅监听回环地址 · <b>最近自动恢复 ${t}：${esc(a.lastReason)}</b>`;
+      foot.innerHTML = t('arFoot') + ' · <b>' + t('arFootReason', { x: tt, why: esc(a.lastReason) }) + '</b>';
     } else {
-      foot.textContent = '配置目录已纳入 git 管理 · 变更自动热加载 · 网关仅监听回环地址';
+      foot.textContent = t('arFoot');
     }
   } catch { /* 自愈状态不可用时不影响主界面 */ }
 }
@@ -370,13 +443,13 @@ function render() {
     const cfg = (config || {})[s.name] || {};
     const tools = (s.capabilities && s.capabilities.tools) || [];
     const statusCls = s.status === 'connected' ? 'ok' : (s.status === 'connecting' ? 'warn' : 'err');
-    const st = { connected: '已连接', connecting: '连接中', error: '错误', disconnected: '未连接' }[s.status] || s.status;
+    const st = { connected: t('stConnected'), connecting: t('stConnecting'), error: t('stError'), disconnected: t('stDisconnected') }[s.status] || s.status;
     const transport = s.transportType || (cfg.command ? 'stdio' : 'remote');
     const initial = (s.name[0] || '?').toUpperCase();
     const desc = (cfg.command ? cfg.command + (cfg.args ? ' ' + cfg.args.join(' ') : '') : (cfg.url || s.displayName || ''));
-    const toolsHtml = tools.length ? `<details class="tools"><summary>▾ ${tools.length} 个工具</summary>` +
+    const toolsHtml = tools.length ? `<details class="tools"><summary>▾ ${t('toolsN', { n: tools.length })}</summary>` +
       tools.map((t) => `<div class="tool-row"><code>${esc(t.name)}</code><span title="${esc(t.title || '')}">${esc((t.title || '').slice(0, 34))}</span></div>`).join('') +
-      '</details>' : '<div class="tools">无工具</div>';
+      '</details>' : '<div class="tools">' + t('noTools') + '</div>';
     return `<div class="card">
       <div class="top">
         <div class="avatar">${initial}</div>
@@ -386,17 +459,17 @@ function render() {
           <div class="badges">
             <span class="badge">${esc(transport)}</span>
             <span class="badge ${statusCls}">● ${st}</span>
-            <span class="badge">${s.uptime != null ? '运行 ' + (s.uptime > 3600 ? (s.uptime / 3600).toFixed(1) + 'h' : Math.round(s.uptime / 60) + 'm') : '—'}</span>
+            <span class="badge">${s.uptime != null ? t('upFor', { x: (s.uptime > 3600 ? (s.uptime / 3600).toFixed(1) + 'h' : Math.round(s.uptime / 60) + 'm') }) : '—'}</span>
           </div>
         </div>
       </div>
       ${toolsHtml}
       ${s.error ? `<div class="errline">${esc(s.error)}</div>` : ''}
       <div class="foot">
-        <button class="btn sm" onclick="openTest('${esc(s.name)}')">▶ 测试</button>
-        <button class="btn sm" onclick="refreshOne('${esc(s.name)}')">⟳ 重连</button>
-        <button class="btn sm" onclick="openEdit('${esc(s.name)}')">✎ 编辑</button>
-        <button class="btn sm danger" onclick="delServer('${esc(s.name)}')">🗑 删除</button>
+        <button class="btn sm" onclick="openTest('${esc(s.name)}')">${t('btnTest')}</button>
+        <button class="btn sm" onclick="refreshOne('${esc(s.name)}')">${t('btnReconnect')}</button>
+        <button class="btn sm" onclick="openEdit('${esc(s.name)}')">${t('btnEdit')}</button>
+        <button class="btn sm danger" onclick="delServer('${esc(s.name)}')">${t('btnDelete')}</button>
       </div>
     </div>`;
   }).join('');
@@ -409,7 +482,7 @@ function toggleType() {
 }
 
 function openAdd() {
-  document.getElementById('editTitle').textContent = '添加服务器';
+  document.getElementById('editTitle').textContent = t('editAdd');
   ['f_orig', 'f_name', 'f_url', 'f_command', 'f_args', 'f_env'].forEach((id) => document.getElementById(id).value = '');
   document.getElementById('f_type').value = 'stdio';
   toggleType();
@@ -418,7 +491,7 @@ function openAdd() {
 
 function openEdit(name) {
   const cfg = (config || {})[name] || {};
-  document.getElementById('editTitle').textContent = '编辑服务器：' + name;
+  document.getElementById('editTitle').textContent = t('editEdit', { n: name });
   document.getElementById('f_orig').value = name;
   document.getElementById('f_name').value = name;
   const type = cfg.command ? 'stdio' : (cfg.url ? ((cfg.headers && cfg.headers['Content-Type'] !== 'text/event-stream') ? 'http' : 'sse') : 'stdio');
@@ -450,7 +523,7 @@ async function saveServer() {
   try {
     await api('/api/servers', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     closeOverlay('editOverlay');
-    toast(type === 'stdio' ? '已保存（stdio）' : '已保存（远程）');
+    toast(type === 'stdio' ? t('savedStdio') : t('savedRemote'));
     setTimeout(loadAll, 1200);
   } catch (e) { toast(e.message, 'err'); }
 }
@@ -465,10 +538,10 @@ function kv(text) {
 }
 
 async function delServer(name) {
-  if (!confirm('确定删除服务器 ' + name + ' ？\n网关热加载后所有客户端将立即失去它的工具。')) return;
+  if (!confirm(t('confirmDel', { n: name }))) return;
   try {
     await api('/api/servers/' + encodeURIComponent(name), { method: 'DELETE' });
-    toast('已删除 ' + name);
+    toast(t('deleted', { n: name }));
     setTimeout(loadAll, 1200);
   } catch (e) { toast(e.message, 'err'); }
 }
@@ -476,7 +549,7 @@ async function delServer(name) {
 async function refreshOne(name) {
   try {
     await api('/api/servers/refresh', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ server_name: name }) });
-    toast('已刷新 ' + name);
+    toast(t('refreshed', { n: name }));
     loadAll(true);
   } catch (e) { toast(e.message, 'err'); }
 }
@@ -503,8 +576,8 @@ async function runTool() {
   const tool = document.getElementById('t_tool').value;
   let arguments;
   try { arguments = JSON.parse(document.getElementById('t_args').value || '{}'); }
-  catch { toast('参数不是合法 JSON', 'err'); return; }
-  btn.disabled = true; btn.textContent = '运行中…';
+  catch { toast(t('badJson'), 'err'); return; }
+  btn.disabled = true; btn.textContent = t('running2');
   try {
     const r = await api('/api/tools/call', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ server_name, tool, arguments }) });
     document.getElementById('t_result').style.display = '';
@@ -513,10 +586,11 @@ async function runTool() {
     document.getElementById('t_result').style.display = '';
     document.getElementById('t_pre').textContent = e.message;
   } finally {
-    btn.disabled = false; btn.textContent = '运行';
+    btn.disabled = false; btn.textContent = t('run');
   }
 }
 
+applyLang();
 loadAll();
 </script>
 </body>
