@@ -8,8 +8,8 @@ After=mcp-hub.service
 
 [Service]
 Type=simple
-# ↓ 改成你的 node 路径与本项目实际目录（建议 npm link / 复制到稳定路径）
-ExecStart=%h/.local/share/mise/installs/node/26.7.0/bin/node /home/sfk/.local/share/mise/installs/node/26.7.0/lib/node_modules/mcp-hub-web/server.js
+# ↓ 改成你的 node 路径与本项目实际目录（建议 npm link / 复制到稳定路径；/home/YOUR_USER 换成你的家目录）
+ExecStart=%h/.local/share/mise/installs/node/26.7.0/bin/node /home/YOUR_USER/.local/share/mise/installs/node/26.7.0/lib/node_modules/mcp-hub-web/server.js
 # 自动恢复看门狗：默认 on。维护期间停网关且不想被拉起时设为 off
 Environment=MCP_HUB_AUTO_RECOVER=on
 IPAddressAllow=localhost
