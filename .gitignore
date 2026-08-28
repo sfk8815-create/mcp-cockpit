@@ -1,0 +1,7 @@
+# 运行时产物
+*.log
+*.tmp
+node_modules/
+
+# 密钥（绝不上传）
+.env

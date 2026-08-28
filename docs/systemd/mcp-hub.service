@@ -1,0 +1,20 @@
+# mcp-hub 网关 user service 模板
+# 安装：cp mcp-hub.service ~/.config/systemd/user/ && systemctl --user daemon-reload
+# 注意：修改 ExecStart 中 mcp-hub 可执行文件路径（示例为 mise 安装位置）
+#       并确保 ~/.config/mcp-hub/servers.json（chmod 600）与 .env 存在
+
+[Unit]
+Description=MCP Hub gateway (unified MCP endpoint)
+After=network.target
+
+[Service]
+Type=simple
+# ↓ 改成你的 mcp-hub 实际路径（npm i -g mcp-hub 后 `which mcp-hub`）
+ExecStart=%h/.local/share/mise/installs/node/26.7.0/bin/mcp-hub --port 8811 --config %h/.config/mcp-hub/servers.json --watch
+EnvironmentFile=%h/.config/mcp-hub/.env
+IPAddressAllow=localhost
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target

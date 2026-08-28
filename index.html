@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCP Cockpit · MCP 网关管理台</title>
+<style>
+:root {
+  --bg: #0b1120;
+  --bg2: #0f172a;
+  --card: #111a2e;
+  --card2: #16213a;
+  --border: #1e293b;
+  --ink: #e2e8f0;
+  --muted: #7c8db0;
+  --accent: #2f6df6;
+  --accent2: #0ea5a4;
+  --ok: #34d399;
+  --warn: #fbbf24;
+  --err: #f87171;
+  --mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background:
+    radial-gradient(1000px 500px at 85% -10%, rgba(47, 109, 246, .14), transparent 60%),
+    radial-gradient(800px 400px at -10% 110%, rgba(14, 165, 164, .10), transparent 60%),
+    var(--bg);
+  color: var(--ink);
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+.wrap { max-width: 1180px; margin: 0 auto; padding: 28px 28px 80px; }
+
+/* header */
+header {
+  display: flex; align-items: center; gap: 14px;
+  padding-bottom: 22px; margin-bottom: 22px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.logo {
+  width: 42px; height: 42px; border-radius: 12px; flex: none;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 18px;
+  box-shadow: 0 4px 20px rgba(47, 109, 246, .35);
+}
+.logo svg { width: 24px; height: 24px; }
+h1 { font-size: 19px; font-weight: 700; letter-spacing: .2px; }
+.sub { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+.spacer { flex: 1; }
+.pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 600;
+  border: 1px solid var(--border); background: var(--card);
+}
+.pill .dot { width: 8px; height: 8px; border-radius: 50%; }
+.pill.ok .dot { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+.pill.warn .dot { background: var(--warn); box-shadow: 0 0 8px var(--warn); }
+.pill.err .dot { background: var(--err); box-shadow: 0 0 8px var(--err); }
+.pill.ok { color: var(--ok); } .pill.warn { color: var(--warn); } .pill.err { color: var(--err); }
+
+/* buttons */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 9px; border: 1px solid var(--border);
+  background: var(--card2); color: var(--ink); font-size: 13px; cursor: pointer;
+  transition: all .15s ease; user-select: none; white-space: nowrap;
+}
+.btn:hover { border-color: var(--accent); transform: translateY(-1px); }
+.btn.primary { background: linear-gradient(135deg, var(--accent), #1d4ed8); border: none; color: #fff; font-weight: 600; }
+.btn.primary:hover { box-shadow: 0 4px 16px rgba(47,109,246,.4); }
+.btn.danger { color: var(--err); }
+.btn.danger:hover { border-color: var(--err); }
+.btn.ghost { background: transparent; }
+.btn.sm { padding: 4px 10px; font-size: 12px; border-radius: 7px; }
+.btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+/* stats */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 22px; }
+.stat {
+  background: linear-gradient(180deg, var(--card), var(--bg2));
+  border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px;
+}
+.stat .k { color: var(--muted); font-size: 12px; }
+.stat .v { font-size: 26px; font-weight: 700; margin-top: 4px; font-family: var(--mono); }
+.stat .v small { font-size: 13px; color: var(--muted); font-weight: 400; margin-left: 4px; }
+
+/* server cards */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+.card {
+  background: linear-gradient(180deg, var(--card), var(--bg2));
+  border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
+  transition: border-color .15s ease, transform .15s ease;
+}
+.card:hover { border-color: #334155; transform: translateY(-2px); }
+.card .top { padding: 16px 18px 12px; display: flex; align-items: flex-start; gap: 12px; }
+.avatar {
+  width: 38px; height: 38px; border-radius: 10px; flex: none;
+  display: grid; place-items: center; font-weight: 700; font-size: 15px; color: #fff;
+  background: linear-gradient(135deg, rgba(47,109,246,.75), rgba(14,165,164,.75));
+}
+.card h3 { font-size: 15px; font-weight: 700; word-break: break-all; }
+.card .desc { color: var(--muted); font-size: 12px; margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.badges { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+.badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 6px; font-family: var(--mono);
+  border: 1px solid var(--border); color: var(--muted); background: var(--card2);
+}
+.badge.ok { color: var(--ok); border-color: rgba(52,211,153,.35); }
+.badge.err { color: var(--err); border-color: rgba(248,113,113,.35); }
+.badge.warn { color: var(--warn); border-color: rgba(251,191,36,.35); }
+.card .tools {
+  border-top: 1px dashed var(--border); margin: 0 18px; padding: 10px 0;
+  color: var(--muted); font-size: 12px; font-family: var(--mono);
+}
+.card .tools summary { cursor: pointer; color: var(--ink); font-family: inherit; list-style: none; }
+.card .tools summary::-webkit-details-marker { display: none; }
+.card .tools summary:hover { color: var(--accent2); }
+.tool-row { display: flex; justify-content: space-between; gap: 8px; padding: 5px 0 0 12px; }
+.tool-row code { color: var(--accent2); }
+.card .foot {
+  display: flex; gap: 8px; padding: 12px 18px; border-top: 1px solid var(--border);
+  background: rgba(15,23,42,.6);
+}
+.errline { color: var(--err); font-size: 12px; padding: 4px 18px 10px; font-family: var(--mono); word-break: break-all; }
+
+/* modal */
+.overlay {
+  position: fixed; inset: 0; background: rgba(2,6,23,.72); backdrop-filter: blur(3px);
+  display: none; align-items: flex-start; justify-content: center; padding: 6vh 20px; z-index: 50;
+}
+.overlay.open { display: flex; }
+.modal {
+  width: 100%; max-width: 560px; max-height: 86vh; overflow: auto;
+  background: linear-gradient(180deg, var(--card), var(--bg2));
+  border: 1px solid #26334d; border-radius: 18px; padding: 24px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.5); animation: pop .18s ease;
+}
+@keyframes pop { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
+.modal h2 { font-size: 16px; margin-bottom: 18px; }
+.modal .row { margin-bottom: 13px; }
+.modal label { display: block; font-size: 12.5px; color: var(--muted); margin-bottom: 5px; }
+.modal input, .modal select, .modal textarea {
+  width: 100%; padding: 9px 11px; border-radius: 9px; font-size: 13px;
+  border: 1px solid var(--border); background: var(--bg2); color: var(--ink);
+  font-family: var(--mono);
+}
+.modal input:focus, .modal select:focus, .modal textarea:focus { outline: none; border-color: var(--accent); }
+.modal textarea { resize: vertical; min-height: 64px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.modal .actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.hint { font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+.result { margin-top: 14px; max-height: 260px; overflow: auto; border-radius: 10px; }
+.result pre {
+  background: #060b16; border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px; font-size: 12px; white-space: pre-wrap; word-break: break-word;
+  font-family: var(--mono); color: #a5f3fc;
+}
+
+/* toast */
+#toasts { position: fixed; top: 18px; right: 18px; z-index: 99; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  padding: 10px 16px; border-radius: 10px; font-size: 13px; min-width: 220px;
+  background: var(--card2); border: 1px solid var(--border); box-shadow: 0 8px 30px rgba(0,0,0,.4);
+  animation: slide .2s ease;
+}
+.toast.ok { border-color: rgba(52,211,153,.5); color: var(--ok); }
+.toast.err { border-color: rgba(248,113,113,.5); color: var(--err); }
+@keyframes slide { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
+
+.empty { text-align: center; color: var(--muted); padding: 60px 0; }
+.empty code { color: var(--accent2); }
+.footnote { margin-top: 26px; color: var(--muted); font-size: 12px; text-align: center; }
+@media (max-width: 720px) { .stats { grid-template-columns: 1fr; } .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="3"/>
+      </svg>
+    </div>
+    <div>
+      <h1>MCP 网关管理台</h1>
+      <div class="sub" id="subtitle">正在连接网关…</div>
+    </div>
+    <div class="spacer"></div>
+    <span class="pill warn" id="statePill"><span class="dot"></span><span id="stateText">连接中</span></span>
+    <span class="pill ok" id="arPill" title="自动恢复：监控上游持续断开并自动重启网关"><span class="dot"></span><span id="arText">自愈监控中</span></span>
+    <button class="btn" onclick="loadAll(true)" title="重新拉取网关状态">⟳ 刷新</button>
+    <button class="btn primary" onclick="openAdd()">＋ 添加服务器</button>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><div class="k">已注册服务器</div><div class="v" id="statServers">–</div></div>
+    <div class="stat"><div class="k">聚合工具总数</div><div class="v" id="statTools">–</div></div>
+    <div class="stat"><div class="k">网关状态</div><div class="v" id="statState" style="font-size:17px;padding-top:8px">–</div></div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" style="display:none">
+    还没有任何 MCP 服务器。<br><br>点击右上角 <b>＋ 添加服务器</b>，或直接编辑<br>
+    <code>~/.config/mcp-hub/servers.json</code>（网关会自动热加载）
+  </div>
+
+  <div class="footnote" id="arFoot">配置目录已纳入 git 管理 · 变更自动热加载 · 网关仅监听回环地址</div>
+</div>
+
+<!-- 添加/编辑 -->
+<div class="overlay" id="editOverlay">
+  <div class="modal">
+    <h2 id="editTitle">添加服务器</h2>
+    <input type="hidden" id="f_orig">
+    <div class="row">
+      <label>名称（唯一，字母/数字/_/-/.）</label>
+      <input id="f_name" placeholder="例如 filesystem">
+    </div>
+    <div class="row">
+      <label>类型</label>
+      <select id="f_type" onchange="toggleType()">
+        <option value="stdio">stdio（本地进程）</option>
+        <option value="sse">SSE（远程端点）</option>
+        <option value="http">HTTP / Streamable（远程端点）</option>
+      </select>
+    </div>
+    <div id="f_remote_row" class="row">
+      <label>URL</label>
+      <input id="f_url" placeholder="https://mcp.example.com/mcp">
+    </div>
+    <div id="f_stdio_row">
+      <div class="row">
+        <label>命令</label>
+        <input id="f_command" placeholder="例如 npx 或 /usr/bin/python3">
+      </div>
+      <div class="row">
+        <label>参数（每行一个）</label>
+        <textarea id="f_args" placeholder="-y&#10;@modelcontextprotocol/server-filesystem&#10;/home/sfk/Work"></textarea>
+      </div>
+    </div>
+    <div class="row">
+      <label>环境变量 / 请求头（每行 KEY=VALUE，可选）</label>
+      <textarea id="f_env" placeholder="API_TOKEN=xxx"></textarea>
+      <div class="hint">stdio 服务器写入 env；远程服务器写入 headers。密钥建议引用 ${env:VAR}，实际值放 ~/.config/mcp-hub/.env</div>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="closeOverlay('editOverlay')">取消</button>
+      <button class="btn primary" onclick="saveServer()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 测试工具 -->
+<div class="overlay" id="testOverlay">
+  <div class="modal">
+    <h2>测试工具调用</h2>
+    <div class="grid2">
+      <div class="row">
+        <label>服务器</label>
+        <select id="t_server" onchange="fillTools()"></select>
+      </div>
+      <div class="row">
+        <label>工具</label>
+        <select id="t_tool"></select>
+      </div>
+    </div>
+    <div class="row">
+      <label>参数（JSON）</label>
+      <textarea id="t_args" rows="4">{
+}</textarea>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="closeOverlay('testOverlay')">关闭</button>
+      <button class="btn primary" onclick="runTool()" id="t_run">运行</button>
+    </div>
+    <div class="result" id="t_result" style="display:none"><pre id="t_pre"></pre></div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<script>
+let health = null;
+let config = null;
+
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  const t = await r.text();
+  let d; try { d = JSON.parse(t); } catch { d = t; }
+  if (!r.ok) throw new Error((d && d.error) || r.statusText);
+  return d;
+}
+
+function toast(msg, kind = 'ok') {
+  const el = document.createElement('div');
+  el.className = 'toast ' + kind;
+  el.textContent = msg;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(() => el.remove(), 3600);
+}
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function statusPill(state) {
+  const pill = document.getElementById('statePill');
+  const txt = document.getElementById('stateText');
+  pill.className = 'pill ' + (state === 'ready' ? 'ok' : (state === 'starting' || state === 'restarting' ? 'warn' : 'err'));
+  txt.textContent = state === 'ready' ? '运行中' : state;
+}
+
+async function loadAll(silent) {
+  try {
+    const [h, c] = await Promise.all([api('/api/health'), api('/api/config')]);
+    health = h; config = c;
+    render();
+    document.getElementById('subtitle').textContent =
+      `mcp-hub v${h.version} · 127.0.0.1:8811/mcp` + (h.activeClients != null ? ` · ${h.activeClients} 个已连接客户端` : '');
+    loadAr();
+  } catch (e) {
+    statusPill('err');
+    document.getElementById('stateText').textContent = '网关不可达';
+    document.getElementById('subtitle').textContent = '无法连接网关：' + e.message;
+    document.getElementById('grid').innerHTML =
+      '<div class="empty">无法连接网关。<br><code>systemctl --user status mcp-hub</code></div>';
+    if (!silent) toast('网关不可达', 'err');
+  }
+}
+
+async function loadAr() {
+  try {
+    const a = await api('/api/auto-recover');
+    const pill = document.getElementById('arPill');
+    const txt = document.getElementById('arText');
+    const foot = document.getElementById('arFoot');
+    let cls = 'ok', label = '自愈监控中';
+    const t = a.lastRestartAt ? new Date(a.lastRestartAt).toLocaleTimeString('zh-CN', { hour12: false }) : null;
+    if (a.lastResult === 'triggered') { cls = 'warn'; label = `已自动重启 ${t}`; }
+    else if (a.lastResult === 'skipped-cooldown') { cls = 'warn'; label = '自愈冷却中'; }
+    else if (a.lastResult === 'gateway-unreachable') { cls = 'err'; label = `网关不可达 ×${a.unreachableStreak}`; }
+    pill.className = 'pill ' + cls;
+    txt.textContent = label;
+    pill.title = a.lastReason
+      ? `自动恢复：${a.lastResult} · 最近重启 ${t || '—'}\n原因：${a.lastReason}`
+      : `自动恢复：每 ${a.pollMs / 1000}s 轮询，连续 ${a.threshold} 次断开即自动重启网关（冷却 ${Math.round(a.cooldownMs / 60000)}min）`;
+    if (a.lastReason) {
+      foot.innerHTML = `配置目录已纳入 git 管理 · 变更自动热加载 · 网关仅监听回环地址 · <b>最近自动恢复 ${t}：${esc(a.lastReason)}</b>`;
+    } else {
+      foot.textContent = '配置目录已纳入 git 管理 · 变更自动热加载 · 网关仅监听回环地址';
+    }
+  } catch { /* 自愈状态不可用时不影响主界面 */ }
+}
+setInterval(loadAr, 15000);
+
+function render() {
+  const servers = health.servers || [];
+  const toolsCount = servers.reduce((n, s) => n + (s.capabilities && s.capabilities.tools ? s.capabilities.tools.length : 0), 0);
+  document.getElementById('statServers').textContent = servers.length;
+  document.getElementById('statTools').textContent = toolsCount;
+  document.getElementById('statState').textContent = health.state;
+  statusPill(health.state);
+  document.getElementById('empty').style.display = servers.length ? 'none' : 'block';
+
+  document.getElementById('grid').innerHTML = servers.map((s) => {
+    const cfg = (config || {})[s.name] || {};
+    const tools = (s.capabilities && s.capabilities.tools) || [];
+    const statusCls = s.status === 'connected' ? 'ok' : (s.status === 'connecting' ? 'warn' : 'err');
+    const st = { connected: '已连接', connecting: '连接中', error: '错误', disconnected: '未连接' }[s.status] || s.status;
+    const transport = s.transportType || (cfg.command ? 'stdio' : 'remote');
+    const initial = (s.name[0] || '?').toUpperCase();
+    const desc = (cfg.command ? cfg.command + (cfg.args ? ' ' + cfg.args.join(' ') : '') : (cfg.url || s.displayName || ''));
+    const toolsHtml = tools.length ? `<details class="tools"><summary>▾ ${tools.length} 个工具</summary>` +
+      tools.map((t) => `<div class="tool-row"><code>${esc(t.name)}</code><span title="${esc(t.title || '')}">${esc((t.title || '').slice(0, 34))}</span></div>`).join('') +
+      '</details>' : '<div class="tools">无工具</div>';
+    return `<div class="card">
+      <div class="top">
+        <div class="avatar">${initial}</div>
+        <div style="flex:1;min-width:0">
+          <h3>${esc(s.name)}</h3>
+          <div class="desc" title="${esc(desc)}">${esc(desc || '—')}</div>
+          <div class="badges">
+            <span class="badge">${esc(transport)}</span>
+            <span class="badge ${statusCls}">● ${st}</span>
+            <span class="badge">${s.uptime != null ? '运行 ' + (s.uptime > 3600 ? (s.uptime / 3600).toFixed(1) + 'h' : Math.round(s.uptime / 60) + 'm') : '—'}</span>
+          </div>
+        </div>
+      </div>
+      ${toolsHtml}
+      ${s.error ? `<div class="errline">${esc(s.error)}</div>` : ''}
+      <div class="foot">
+        <button class="btn sm" onclick="openTest('${esc(s.name)}')">▶ 测试</button>
+        <button class="btn sm" onclick="refreshOne('${esc(s.name)}')">⟳ 重连</button>
+        <button class="btn sm" onclick="openEdit('${esc(s.name)}')">✎ 编辑</button>
+        <button class="btn sm danger" onclick="delServer('${esc(s.name)}')">🗑 删除</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleType() {
+  const t = document.getElementById('f_type').value;
+  document.getElementById('f_remote_row').style.display = (t === 'stdio') ? 'none' : '';
+  document.getElementById('f_stdio_row').style.display = (t === 'stdio') ? '' : 'none';
+}
+
+function openAdd() {
+  document.getElementById('editTitle').textContent = '添加服务器';
+  ['f_orig', 'f_name', 'f_url', 'f_command', 'f_args', 'f_env'].forEach((id) => document.getElementById(id).value = '');
+  document.getElementById('f_type').value = 'stdio';
+  toggleType();
+  document.getElementById('editOverlay').classList.add('open');
+}
+
+function openEdit(name) {
+  const cfg = (config || {})[name] || {};
+  document.getElementById('editTitle').textContent = '编辑服务器：' + name;
+  document.getElementById('f_orig').value = name;
+  document.getElementById('f_name').value = name;
+  const type = cfg.command ? 'stdio' : (cfg.url ? ((cfg.headers && cfg.headers['Content-Type'] !== 'text/event-stream') ? 'http' : 'sse') : 'stdio');
+  document.getElementById('f_type').value = type === 'stdio' ? 'stdio' : 'sse';
+  document.getElementById('f_url').value = cfg.url || '';
+  document.getElementById('f_command').value = cfg.command || '';
+  document.getElementById('f_args').value = (cfg.args || []).join('\n');
+  const kv = Object.entries(cfg.env || cfg.headers || {}).map(([k, v]) => k + '=' + v).join('\n');
+  document.getElementById('f_env').value = kv;
+  toggleType();
+  document.getElementById('editOverlay').classList.add('open');
+}
+
+function closeOverlay(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach((o) => o.addEventListener('click', (e) => { if (e.target === o) o.classList.remove('open'); }));
+
+async function saveServer() {
+  const name = document.getElementById('f_name').value.trim();
+  const type = document.getElementById('f_type').value;
+  const body = { name, type };
+  if (type === 'stdio') {
+    body.command = document.getElementById('f_command').value.trim();
+    body.args = document.getElementById('f_args').value.split('\n').map((s) => s.trim()).filter(Boolean);
+    body.env = kv(document.getElementById('f_env').value);
+  } else {
+    body.url = document.getElementById('f_url').value.trim();
+    body.headers = kv(document.getElementById('f_env').value);
+  }
+  try {
+    await api('/api/servers', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    closeOverlay('editOverlay');
+    toast(type === 'stdio' ? '已保存（stdio）' : '已保存（远程）');
+    setTimeout(loadAll, 1200);
+  } catch (e) { toast(e.message, 'err'); }
+}
+
+function kv(text) {
+  const out = {};
+  String(text || '').split('\n').map((l) => l.trim()).filter(Boolean).forEach((l) => {
+    const i = l.indexOf('=');
+    if (i > 0) out[l.slice(0, i).trim()] = l.slice(i + 1).trim();
+  });
+  return out;
+}
+
+async function delServer(name) {
+  if (!confirm('确定删除服务器 ' + name + ' ？\n网关热加载后所有客户端将立即失去它的工具。')) return;
+  try {
+    await api('/api/servers/' + encodeURIComponent(name), { method: 'DELETE' });
+    toast('已删除 ' + name);
+    setTimeout(loadAll, 1200);
+  } catch (e) { toast(e.message, 'err'); }
+}
+
+async function refreshOne(name) {
+  try {
+    await api('/api/servers/refresh', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ server_name: name }) });
+    toast('已刷新 ' + name);
+    loadAll(true);
+  } catch (e) { toast(e.message, 'err'); }
+}
+
+function openTest(name) {
+  document.getElementById('testOverlay').classList.add('open');
+  document.getElementById('t_result').style.display = 'none';
+  document.getElementById('t_args').value = '{\n}';
+  const ss = document.getElementById('t_server');
+  ss.innerHTML = (health.servers || []).map((s) => `<option value="${esc(s.name)}"${s.name === name ? ' selected' : ''}>${esc(s.name)}</option>`).join('');
+  fillTools();
+}
+
+function fillTools() {
+  const sname = document.getElementById('t_server').value;
+  const s = (health.servers || []).find((x) => x.name === sname);
+  const tools = (s && s.capabilities && s.capabilities.tools) || [];
+  document.getElementById('t_tool').innerHTML = tools.map((t) => `<option value="${esc(t.name)}">${esc(t.name)}</option>`).join('') || '<option>—</option>';
+}
+
+async function runTool() {
+  const btn = document.getElementById('t_run');
+  const server_name = document.getElementById('t_server').value;
+  const tool = document.getElementById('t_tool').value;
+  let arguments;
+  try { arguments = JSON.parse(document.getElementById('t_args').value || '{}'); }
+  catch { toast('参数不是合法 JSON', 'err'); return; }
+  btn.disabled = true; btn.textContent = '运行中…';
+  try {
+    const r = await api('/api/tools/call', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ server_name, tool, arguments }) });
+    document.getElementById('t_result').style.display = '';
+    document.getElementById('t_pre').textContent = JSON.stringify(r, null, 2);
+  } catch (e) {
+    document.getElementById('t_result').style.display = '';
+    document.getElementById('t_pre').textContent = e.message;
+  } finally {
+    btn.disabled = false; btn.textContent = '运行';
+  }
+}
+
+loadAll();
+</script>
+</body>
+</html>

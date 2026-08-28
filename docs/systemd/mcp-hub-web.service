@@ -1,0 +1,20 @@
+# mcp-hub-web 管理台 user service 模板
+# 安装：cp mcp-hub-web.service ~/.config/systemd/user/ && systemctl --user daemon-reload
+# 注意：修改 ExecStart 中 node 与项目目录路径（示例为 mise 安装位置）
+
+[Unit]
+Description=MCP Hub Web management UI
+After=mcp-hub.service
+
+[Service]
+Type=simple
+# ↓ 改成你的 node 路径与本项目实际目录（建议 npm link / 复制到稳定路径）
+ExecStart=%h/.local/share/mise/installs/node/26.7.0/bin/node /home/sfk/.local/share/mise/installs/node/26.7.0/lib/node_modules/mcp-hub-web/server.js
+# 自动恢复看门狗：默认 on。维护期间停网关且不想被拉起时设为 off
+Environment=MCP_HUB_AUTO_RECOVER=on
+IPAddressAllow=localhost
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target
