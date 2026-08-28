@@ -13,18 +13,17 @@ A **zero-dependency web cockpit & auto-recovery watchdog** for the [mcp-hub](htt
 
 ### 这是什么？
 
-你在本机跑了一个 [mcp-hub](https://github.com/ravitemer/mcp-hub) 网关，把多个 MCP 服务器（文件系统、数据库、搜索……）聚合成一个统一端点。但 mcp-hub 本身**没有图形界面**——想增删服务器、看工具列表、测试调用，只能敲 API。
+> **给你跑的每一个 MCP 服务器一个驾驶舱——看得见、管得了、会自愈。**
 
-MCP Cockpit 补上这块：一个浏览器里的管理台，加上一个会在上游服务器挂掉时自动重启网关的看门狗。
+MCP Cockpit 是一个零依赖的本地 MCP 管理台：浏览器里就能增删服务器、浏览全部工具、一键测试调用；更重要的是它带一个**自愈看门狗**——某台服务器持续掉线时自动重启网关恢复，不用半夜爬起来巡检。
 
-### 功能一览
+### 核心优势
 
-- **服务器管理**：添加 stdio / http(SSE) 类型的 MCP 服务器，删除、全局或单台刷新
-- **工具浏览**：列出各上游服务器的全部工具（schema 可折叠）
-- **调用测试**：在页面里直接填参数、环境变量、超时，一键调用看结果
-- **配置备份/恢复**：导出 `servers.json` 下载，或上传文件恢复
-- **自动恢复看门狗**（可选）：上游断开达阈值时自动 `systemctl --user restart mcp-hub`；带冷却、单服务器上限制与"环境性下线"豁免，可用 `MCP_HUB_AUTO_RECOVER=off` 一键暂停
-- **安全**：默认只听 `127.0.0.1`（各平台均足够隔离）；Linux systemd 部署再加 `IPAddressAllow=localhost`；配置含密钥时保持 `chmod 600`（Linux/macOS）
+- **可视化管控，零 API 知识**：添加 / 删除 / 刷新服务器全是一键操作——不用编辑配置文件，不用记端点
+- **一键调用测试**：参数、环境变量、超时直接在页面里填，当场看结果——不用写一行客户端代码
+- **自愈看门狗**：持续掉线自动触发重启，带防抖 / 冷却 / 单服务器上限制防止失控；维护时一键暂停（`MCP_HUB_AUTO_RECOVER=off`）
+- **配置备份/恢复**：一键导出、单文件恢复——再也不怕改坏配置
+- **本地优先，零依赖**：只听 `127.0.0.1`，数据不出本机；无 package.json，Node 直接跑
 
 ### 📖 部署向导
 
@@ -301,18 +300,17 @@ MIT © Sovena contributors、西南大学·艺术人类学研究所、西南大�
 
 ### What is this?
 
-You run a local [mcp-hub](https://github.com/ravitemer/mcp-hub) gateway that aggregates many MCP servers (filesystem, databases, search…) into one endpoint. But mcp-hub ships **no GUI** — managing servers means poking at raw APIs.
+> **One cockpit for every MCP server you run — visible, manageable, self-healing.**
 
-MCP Cockpit fills that gap: a browser-based admin console, plus an auto-recovery watchdog that restarts the gateway when upstream servers die.
+MCP Cockpit is a zero-dependency local console for your MCP servers: manage them from the browser — add/remove, browse every tool, test calls in one click. And it ships with a **self-healing watchdog**: when a server stays down, the gateway is restarted automatically so your stack recovers on its own.
 
-### Features
+### Core advantages
 
-- **Server management**: add stdio / http(SSE) MCP servers, delete, refresh all or one
-- **Tool browser**: list every tool of each upstream (collapsible schemas)
-- **Call tester**: fill arguments / env / timeout in the page, invoke, see results
-- **Config backup & restore**: download `servers.json`, or upload a file to restore
-- **Auto-recovery watchdog** (optional): auto `systemctl --user restart mcp-hub` when an upstream stays down; with cooldown, per-server cap and "environmental offline" exemption; pausable via `MCP_HUB_AUTO_RECOVER=off`
-- **Security**: binds to `127.0.0.1` by default (sufficient on all platforms); Linux systemd adds `IPAddressAllow=localhost`; keep config `chmod 600` when it holds keys (Linux/macOS)
+- **Visual management, zero API knowledge**: add / remove / refresh servers with clicks — no config files to edit, no endpoints to memorize
+- **One-click call testing**: fill arguments / env / timeout right in the page and see results — no client code to write
+- **Self-healing watchdog**: sustained outages trigger an automatic restart, with debounce / cooldown / per-server caps so it can't run away; one-key pause for maintenance (`MCP_HUB_AUTO_RECOVER=off`)
+- **Config backup & restore**: export with one click, recover from a single file — never fear breaking your config
+- **Local-first, zero dependencies**: binds to `127.0.0.1` only — data never leaves your machine; no package.json, just Node
 
 ### 📖 Deployment guide
 
