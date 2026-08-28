@@ -13,12 +13,15 @@ A **zero-dependency web cockpit & auto-recovery watchdog** for the [mcp-hub](htt
 
 ### 这是什么？
 
-> **给你跑的每一个 MCP 服务器一个驾驶舱——看得见、管得了、会自愈。**
+> **一份 MCP 配置，服务你所有的 AI 客户端——看得见、管得了、会自愈。**
 
-MCP Cockpit 是一个零依赖的本地 MCP 管理台：浏览器里就能增删服务器、浏览全部工具、一键测试调用；更重要的是它带一个**自愈看门狗**——某台服务器持续掉线时自动重启网关恢复，不用半夜爬起来巡检。
+你的电脑上装着 Codex、Claude Code、Cursor、Trae、Windsurf、Cline、Zed……只要支持 MCP 的 AI 客户端，理论上都能用上同一批 MCP 服务器——但现实是：每个客户端都有自己的配置格式和设置入口，加一个工具就要挨个改 N 遍。
+
+MCP Cockpit 把这一切收拢成**一个统一端点 + 一个浏览器驾驶舱**：所有 MCP 服务器在这里集中增删、刷新、测试，每个客户端只需连上这一个端点；加一个新工具，全部客户端立刻生效。它同时带一个**自愈看门狗**——某台服务器持续掉线时自动重启网关恢复，不用半夜爬起来巡检。
 
 ### 核心优势
 
+- **一份配置，全端共享**：所有客户端连同一个统一端点；新增服务器一处生效，无需逐个客户端设置
 - **可视化管控，零 API 知识**：添加 / 删除 / 刷新服务器全是一键操作——不用编辑配置文件，不用记端点
 - **一键调用测试**：参数、环境变量、超时直接在页面里填，当场看结果——不用写一行客户端代码
 - **自愈看门狗**：持续掉线自动触发重启，带防抖 / 冷却 / 单服务器上限制防止失控；维护时一键暂停（`MCP_HUB_AUTO_RECOVER=off`）
@@ -300,12 +303,15 @@ MIT © Sovena contributors、西南大学·艺术人类学研究所、西南大�
 
 ### What is this?
 
-> **One cockpit for every MCP server you run — visible, manageable, self-healing.**
+> **One MCP config, serving every AI client you run — visible, manageable, self-healing.**
 
-MCP Cockpit is a zero-dependency local console for your MCP servers: manage them from the browser — add/remove, browse every tool, test calls in one click. And it ships with a **self-healing watchdog**: when a server stays down, the gateway is restarted automatically so your stack recovers on its own.
+Your machine has Codex, Claude Code, Cursor, Trae, Windsurf, Cline, Zed… — any MCP-capable AI client could in theory use the same set of MCP servers. In practice, though: every client has its own config format and settings UI, so adding one tool means editing N clients by hand.
+
+MCP Cockpit pulls all of that into **one unified endpoint + one browser cockpit**: every MCP server is added, refreshed and tested in a single place; each client just connects to that one endpoint. Add a new tool once — every client gets it instantly. And it ships with a **self-healing watchdog**: when a server stays down, the gateway is restarted automatically so your stack recovers on its own.
 
 ### Core advantages
 
+- **One config, every client**: all clients share a single unified endpoint; add a server once and it's live everywhere — no per-client setup
 - **Visual management, zero API knowledge**: add / remove / refresh servers with clicks — no config files to edit, no endpoints to memorize
 - **One-click call testing**: fill arguments / env / timeout right in the page and see results — no client code to write
 - **Self-healing watchdog**: sustained outages trigger an automatic restart, with debounce / cooldown / per-server caps so it can't run away; one-key pause for maintenance (`MCP_HUB_AUTO_RECOVER=off`)
