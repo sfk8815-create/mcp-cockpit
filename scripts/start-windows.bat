@@ -7,6 +7,13 @@ rem ============================================================
 setlocal
 cd /d "%~dp0.."
 
+if not exist "%USERPROFILE%\.config\mcp-hub\servers.json" (
+  echo [ERROR] Config not found: %USERPROFILE%\.config\mcp-hub\servers.json
+  echo Run the one-click installer first: scripts\install.bat
+  pause
+  exit /b 1
+)
+
 where mcp-hub >nul 2>&1
 if errorlevel 1 (
   echo [ERROR] mcp-hub not found. Run first: npm install -g mcp-hub

@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/tmp"],
+      "env": {}
+    },
+    "context7": {
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {}
+    }
+  }
+}
