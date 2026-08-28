@@ -327,7 +327,7 @@ async function loadAll(silent) {
     document.getElementById('stateText').textContent = '网关不可达';
     document.getElementById('subtitle').textContent = '无法连接网关：' + e.message;
     document.getElementById('grid').innerHTML =
-      '<div class="empty">无法连接网关。<br><code>systemctl --user status mcp-hub</code></div>';
+      '<div class="empty">无法连接网关。<br>Linux: <code>systemctl --user status mcp-hub</code></div>';
     if (!silent) toast('网关不可达', 'err');
   }
 }

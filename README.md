@@ -5,7 +5,7 @@
 
 A **zero-dependency web cockpit & auto-recovery watchdog** for the [mcp-hub](https://github.com/ravitemer/mcp-hub) gateway. One Node file (`server.js`) + one HTML page (`index.html`) — no package.json, nothing to install.
 
-**[🇨🇳 中文文档（含小白部署向导）](#-中文文档)** · **[🇬🇧 English docs (beginner deployment guide)](#-english-docs)**
+**[🇨🇳 中文文档（含部署向导）](#-中文文档)** · **[🇬🇧 English docs (deployment guide)](#-english-docs)**
 
 ---
 
@@ -24,18 +24,18 @@ MCP Cockpit 补上这块：一个浏览器里的管理台，加上一个会在�
 - **调用测试**：在页面里直接填参数、环境变量、超时，一键调用看结果
 - **配置备份/恢复**：导出 `servers.json` 下载，或上传文件恢复
 - **自动恢复看门狗**（可选）：上游断开达阈值时自动 `systemctl --user restart mcp-hub`；带冷却、单服务器上限制与"环境性下线"豁免，可用 `MCP_HUB_AUTO_RECOVER=off` 一键暂停
-- **安全**：默认只听 `127.0.0.1`，systemd 部署再加 `IPAddressAllow=localhost`；配置含密钥时保持 `chmod 600`
+- **安全**：默认只听 `127.0.0.1`（各平台均足够隔离）；Linux systemd 部署再加 `IPAddressAllow=localhost`；配置含密钥时保持 `chmod 600`（Linux/macOS）
 
-### 📖 部署向导（小白版，一步步来）
+### 📖 部署向导
 
-> 全程只需终端 + 浏览器。每一步都给出"复制即可执行"的命令和"你应该看到什么"。
+> 全程只需终端（Windows 用 PowerShell）+ 浏览器。每一步都给出"复制即可执行"的命令和"你应该看到什么"。
 
 #### 第 0 步：你需要准备什么
 
 | 需要 | 说明 |
 |---|---|
-| 一台 Linux 机器（macOS 也行） | 网关和管理台都跑在你自己的电脑上，数据不出本机 |
-| 一个终端（Terminal） | Ubuntu: `Ctrl+Alt+T`；macOS: Spotlight 搜 "Terminal" |
+| Linux / macOS / Windows 任一 | 网关和管理台都跑在你自己的电脑上，数据不出本机 |
+| 一个终端（Terminal） | Ubuntu: `Ctrl+Alt+T`；macOS: Spotlight 搜 "Terminal"；Windows: PowerShell |
 | Node.js ≥ 18 | 第 1 步安装 |
 
 #### 第 1 步：安装 Node.js（≥ 18）
@@ -47,7 +47,7 @@ node -v
 ```
 
 - 显示 `v18.x` / `v20.x` / `v22.x` 等 ≥18 的版本 → **跳过本步**
-- 显示 `command not found` 或版本 <18 → 三选一安装：
+- 显示 `command not found` 或版本 <18 → 按你的系统四选一安装：
 
 **方式 A：nvm（最通用，推荐新手）**
 ```bash
@@ -70,11 +70,18 @@ mise use -g node@22
 node -v    # 应显示 v22.x
 ```
 
+**方式 D：Windows（PowerShell）**
+```powershell
+winget install OpenJS.NodeJS.LTS    # 或从 https://nodejs.org 下载 .msi 安装包
+# 关闭并重新打开 PowerShell，然后：
+node -v    # 应显示 v20.x 或更高
+```
+
 #### 第 2 步：安装 mcp-hub 网关
 
 ```bash
 npm install -g mcp-hub
-which mcp-hub     # 记下输出的完整路径，第 6 步要用
+which mcp-hub     # 记下输出的完整路径，第 6 步要用（Windows: where mcp-hub）
 mcp-hub --version # 应显示 4.x
 ```
 
@@ -95,7 +102,7 @@ cd <解压出的 mcp-cockpit 目录>
 
 ```bash
 mkdir -p ~/.config/mcp-hub
-nano ~/.config/mcp-hub/servers.json    # 不熟悉 nano？把 nano 换成 vim 或 code
+nano ~/.config/mcp-hub/servers.json    # 不熟悉 nano？换成 vim / code；Windows 用 notepad
 ```
 
 粘贴一个最小示例（一个本地 stdio 服务器 + 一个远程 http 服务器），保存退出（nano: `Ctrl+O` 回车 `Ctrl+X`）：
@@ -121,12 +128,12 @@ nano ~/.config/mcp-hub/servers.json    # 不熟悉 nano？把 nano 换成 vim �
 - ⚠️ 如果某个服务器需要 API key，写在它的 `env` / `headers` 里，然后收紧权限：
 
 ```bash
-chmod 600 ~/.config/mcp-hub/servers.json   # 只允许你自己读写
+chmod 600 ~/.config/mcp-hub/servers.json   # 只允许你自己读写（Linux/macOS；Windows 可跳过）
 ```
 
 #### 第 5 步：先跑起来试试（不用 systemd）
 
-开**两个终端**：
+开**两个终端**（Windows：打开两个 PowerShell 窗口）：
 
 ```bash
 # 终端 1：启动网关
@@ -138,9 +145,13 @@ mcp-hub --port 8811 --config ~/.config/mcp-hub/servers.json
 node server.js
 ```
 
-浏览器打开 **http://127.0.0.1:8899**，你应该看到：服务器列表（filesystem / context7）、每台的工具数量、"自动恢复: 已启用"徽章。点进某台服务器可以浏览工具、测试调用。**到这里，核心功能已经跑通了！** 两个终端 `Ctrl+C` 停掉，进入第 6 步做正式部署。
+浏览器打开 [http://127.0.0.1:8899](http://127.0.0.1:8899)，你应该看到：服务器列表（filesystem / context7）、每台的工具数量、"自动恢复: 已启用"徽章。点进某台服务器可以浏览工具、测试调用。**到这里，核心功能已经跑通了！** 两个终端 `Ctrl+C` 停掉，进入第 6 步做正式部署。
 
-#### 第 6 步：（推荐）用 systemd 开机自启，不再手动敲命令
+#### 第 6 步：（推荐）设置自启，不再手动敲命令
+
+按你的系统选择：**Linux → 6a（systemd）** / **Windows → 6b** / **macOS → 6c**
+
+##### 6a. Linux（systemd）
 
 ```bash
 # 1) 复制单元模板到 user systemd 目录
@@ -162,6 +173,22 @@ loginctl enable-linger $USER
 
 > 💡 说明：`enable` = 登录时自动启动；`--now` = 现在就启动。user service 默认跟随你的登录会话，第 5 条 `enable-linger` 让它在未登录时也运行（真正意义的"开机自启"）。
 
+##### 6b. Windows（一键脚本 + 登录自启）
+
+```powershell
+# 1) cd 到项目目录，运行一键启动脚本（网关 + 管理台各开一个窗口）
+.\scripts\start-windows.bat
+
+# 2)（可选）登录自启：按 Win+R，输入 shell:startup 回车
+#    → 在打开的文件夹里，新建指向 scripts\start-windows.bat 的快捷方式
+```
+
+停止：关闭那两个窗口即可（或在任务管理器结束 `mcp-hub` 与 `node server.js` 进程）。
+
+##### 6c. macOS（简略）
+
+macOS 没有 systemd，`docs/systemd/` 的单元模板不适用。日常使用：直接在终端跑第 5 步的两条命令；需要开机自启可用"系统设置 → 通用 → 登录项"添加一个简单脚本（或写两个 launchd plist，进阶）。
+
 #### 第 7 步：验证一切正常
 
 ```bash
@@ -177,9 +204,10 @@ journalctl --user -u mcp-hub-web -f          # 实时日志（Ctrl+C 退出）
 
 **Q: 端口被占用 / 想换端口？**
 ```bash
-ss -ltnp | grep -E '8899|8811'        # 看谁占着
+ss -ltnp | grep -E '8899|8811'        # 看谁占着（Linux/macOS）
 MCP_HUB_PORT=9000 node server.js      # 管理台换端口（网关同理用 --port）
 ```
+Windows：`netstat -ano | findstr ":8899"` 看占用。
 
 **Q: 页面打开但显示"网关不可达"？**
 先确认网关活着：`systemctl --user status mcp-hub`；再看它的日志 `journalctl --user -u mcp-hub -n 50`。常见原因是 servers.json 里某台服务器配置有误导致网关启动失败。
@@ -225,9 +253,10 @@ systemctl --user stop mcp-hub        # 现在停掉后不会被自动拉起
 
 ```
 mcp-cockpit/
-├── server.js            # 后端：HTTP 路由 + 网关代理 + 自动恢复引擎（零依赖）
-├── index.html           # 前端：单页管理台 UI
-└── docs/systemd/        # systemd user service 模板（mcp-hub + mcp-hub-web）
+├── server.js                  # 后端：HTTP 路由 + 网关代理 + 自动恢复引擎（零依赖）
+├── index.html                 # 前端：单页管理台 UI
+├── scripts/start-windows.bat  # Windows 一键启动脚本（网关 + 管理台）
+└── docs/systemd/              # systemd user service 模板（仅 Linux；mcp-hub + mcp-hub-web）
 ```
 
 ### 已知限制
@@ -235,6 +264,7 @@ mcp-cockpit/
 - 面向单机 localhost 管理场景，无鉴权（依赖 `127.0.0.1` + `IPAddressAllow` 隔离，**不要直接暴露公网**）
 - 依赖 mcp-hub ≥ 4.2.x 的 API（`GET /api/refresh`、`POST /api/servers/refresh`）
 - 自动恢复通过重启整个网关实现（mcp-hub 无单服务器 stdio 重连 API）
+- 看门狗的自动重启仅在 Linux（systemctl）生效；其他平台降级为只监控
 
 ### 许可证
 
@@ -268,18 +298,18 @@ MCP Cockpit fills that gap: a browser-based admin console, plus an auto-recovery
 - **Call tester**: fill arguments / env / timeout in the page, invoke, see results
 - **Config backup & restore**: download `servers.json`, or upload a file to restore
 - **Auto-recovery watchdog** (optional): auto `systemctl --user restart mcp-hub` when an upstream stays down; with cooldown, per-server cap and "environmental offline" exemption; pausable via `MCP_HUB_AUTO_RECOVER=off`
-- **Security**: binds to `127.0.0.1` by default; systemd adds `IPAddressAllow=localhost`; keep config `chmod 600` when it holds keys
+- **Security**: binds to `127.0.0.1` by default (sufficient on all platforms); Linux systemd adds `IPAddressAllow=localhost`; keep config `chmod 600` when it holds keys (Linux/macOS)
 
-### 📖 Deployment guide (beginner-friendly, step by step)
+### 📖 Deployment guide
 
-> Terminal + browser only. Every step has copy-paste commands and "what you should see".
+> Terminal (PowerShell on Windows) + browser only. Every step has copy-paste commands and "what you should see".
 
 #### Step 0: What you need
 
 | Item | Notes |
 |---|---|
-| A Linux machine (macOS works too) | Everything runs on your own box; data never leaves it |
-| A terminal | Ubuntu: `Ctrl+Alt+T`; macOS: Spotlight → "Terminal" |
+| Linux / macOS / Windows, any of them | Everything runs on your own box; data never leaves it |
+| A terminal | Ubuntu: `Ctrl+Alt+T`; macOS: Spotlight → "Terminal"; Windows: PowerShell |
 | Node.js ≥ 18 | Installed in step 1 |
 
 #### Step 1: Install Node.js (≥ 18)
@@ -289,7 +319,7 @@ Check first:
 node -v
 ```
 - Prints `v18.x`/`v20.x`/`v22.x` (≥18) → **skip this step**
-- `command not found` or <18 → pick one:
+- `command not found` or <18 → pick one (by your OS):
 
 **Option A: nvm (most portable, recommended for beginners)**
 ```bash
@@ -312,11 +342,18 @@ mise use -g node@22
 node -v    # should print v22.x
 ```
 
+**Option D: Windows (PowerShell)**
+```powershell
+winget install OpenJS.NodeJS.LTS    # or download the .msi installer from https://nodejs.org
+# close & reopen PowerShell, then:
+node -v    # should print v20.x or higher
+```
+
 #### Step 2: Install the mcp-hub gateway
 
 ```bash
 npm install -g mcp-hub
-which mcp-hub     # note the full path — needed in step 6
+which mcp-hub     # note the full path — needed in step 6 (Windows: where mcp-hub)
 mcp-hub --version # should print 4.x
 ```
 
@@ -337,7 +374,7 @@ cd <unzipped mcp-cockpit dir>
 
 ```bash
 mkdir -p ~/.config/mcp-hub
-nano ~/.config/mcp-hub/servers.json    # nano? swap for vim or code
+nano ~/.config/mcp-hub/servers.json    # nano? swap for vim / code; on Windows use notepad
 ```
 
 Paste a minimal example (one local stdio server + one remote http server), save & exit (nano: `Ctrl+O` Enter, `Ctrl+X`):
@@ -363,12 +400,12 @@ Paste a minimal example (one local stdio server + one remote http server), save 
 - ⚠️ If any server needs an API key, put it in its `env`/`headers`, then lock the file down:
 
 ```bash
-chmod 600 ~/.config/mcp-hub/servers.json   # readable/writable only by you
+chmod 600 ~/.config/mcp-hub/servers.json   # readable/writable only by you (Linux/macOS; skip on Windows)
 ```
 
 #### Step 5: Try it (no systemd yet)
 
-Open **two terminals**:
+Open **two terminals** (Windows: two PowerShell windows):
 ```bash
 # Terminal 1: start the gateway
 mcp-hub --port 8811 --config ~/.config/mcp-hub/servers.json
@@ -378,9 +415,13 @@ mcp-hub --port 8811 --config ~/.config/mcp-hub/servers.json
 node server.js
 ```
 
-Open **http://127.0.0.1:8899** in your browser — you should see the server list (filesystem / context7), tool counts, and an "auto-recovery: enabled" badge. Click a server to browse tools and test calls. **Core functionality is working now!** `Ctrl+C` both terminals, then do the real deployment in step 6.
+Open [http://127.0.0.1:8899](http://127.0.0.1:8899) in your browser — you should see the server list (filesystem / context7), tool counts, and an "auto-recovery: enabled" badge. Click a server to browse tools and test calls. **Core functionality is working now!** `Ctrl+C` both terminals, then do the real deployment in step 6.
 
-#### Step 6: (Recommended) Auto-start with systemd — no more manual commands
+#### Step 6: (Recommended) Auto-start — no more manual commands
+
+Pick by your OS: **Linux → 6a (systemd)** / **Windows → 6b** / **macOS → 6c**
+
+##### 6a. Linux (systemd)
 
 ```bash
 # 1) copy unit templates into your user systemd dir
@@ -402,6 +443,22 @@ loginctl enable-linger $USER
 
 > 💡 `enable` = start automatically at login; `--now` = start right now. User services follow your login session by default; step 5 (`enable-linger`) makes them survive logout — true boot-time autostart.
 
+##### 6b. Windows (one-click script + logon auto-start)
+
+```powershell
+# 1) cd into the project dir, run the one-click start script (gateway + console in separate windows)
+.\scripts\start-windows.bat
+
+# 2) (optional) auto-start at logon: press Win+R, type shell:startup, Enter
+#    → in the folder that opens, create a shortcut pointing to scripts\start-windows.bat
+```
+
+To stop: just close those two windows (or end the `mcp-hub` and `node server.js` processes in Task Manager).
+
+##### 6c. macOS (brief)
+
+macOS has no systemd, so the `docs/systemd/` unit templates don't apply. Day-to-day: just run the two step-5 commands in a terminal; for boot-time autostart, add a simple script via "System Settings → General → Login Items" (or write two launchd plists, advanced).
+
 #### Step 7: Verify everything works
 
 ```bash
@@ -417,9 +474,10 @@ Reopen http://127.0.0.1:8899 to confirm the page is fine. 🎉
 
 **Q: Port already in use / want a different port?**
 ```bash
-ss -ltnp | grep -E '8899|8811'        # see who holds it
+ss -ltnp | grep -E '8899|8811'        # see who holds it (Linux/macOS)
 MCP_HUB_PORT=9000 node server.js      # console on another port (gateway: --port)
 ```
+Windows: `netstat -ano | findstr ":8899"` to see the holder.
 
 **Q: Page loads but says "gateway unreachable"?**
 Check the gateway is alive: `systemctl --user status mcp-hub`; then its logs: `journalctl --user -u mcp-hub -n 50`. Usually a bad server entry in servers.json makes the gateway fail to start.
@@ -465,9 +523,10 @@ Polls every 15 s; a server must be down **4 polls in a row** (≈60 s) before a 
 
 ```
 mcp-cockpit/
-├── server.js            # backend: HTTP routes + gateway proxy + auto-recovery engine (zero-dep)
-├── index.html           # frontend: single-page admin UI
-└── docs/systemd/        # systemd user service templates (mcp-hub + mcp-hub-web)
+├── server.js                  # backend: HTTP routes + gateway proxy + auto-recovery engine (zero-dep)
+├── index.html                 # frontend: single-page admin UI
+├── scripts/start-windows.bat  # Windows one-click start script (gateway + console)
+└── docs/systemd/              # systemd user service templates (Linux only; mcp-hub + mcp-hub-web)
 ```
 
 ### Known limitations
@@ -475,6 +534,7 @@ mcp-cockpit/
 - For single-machine localhost administration; no auth (relies on `127.0.0.1` + `IPAddressAllow` — **never expose to the public internet**)
 - Depends on mcp-hub ≥ 4.2.x APIs (`GET /api/refresh`, `POST /api/servers/refresh`)
 - Auto-recovery restarts the whole gateway (mcp-hub has no per-server stdio reconnect API)
+- Watchdog auto-restart only works on Linux (systemctl); other platforms degrade to monitoring-only
 
 ### License
 

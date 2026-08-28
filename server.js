@@ -73,6 +73,10 @@ function runRestart(reason) {
     (global.__restartCalls = global.__restartCalls || []).push({ reason, at: Date.now() });
     return Promise.resolve({ ok: true, code: 0, output: 'selftest' });
   }
+  if (process.platform !== 'linux') {
+    logAr(`RESTART SKIPPED: platform ${process.platform} has no systemctl — monitoring only, auto-restart unavailable`);
+    return Promise.resolve({ ok: false, error: 'unsupported platform' });
+  }
   const { spawn } = require('child_process');
   return new Promise((resolve) => {
     const p = spawn('systemctl', ['--user', 'restart', 'mcp-hub'], { stdio: ['ignore', 'pipe', 'pipe'] });

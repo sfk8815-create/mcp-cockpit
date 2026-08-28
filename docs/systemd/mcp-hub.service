@@ -1,4 +1,4 @@
-# mcp-hub 网关 user service 模板
+# mcp-hub 网关 user service 模板（仅 Linux；Windows 请用 scripts/start-windows.bat）
 # 安装：cp mcp-hub.service ~/.config/systemd/user/ && systemctl --user daemon-reload
 # 注意：修改 ExecStart 中 mcp-hub 可执行文件路径（示例为 mise 安装位置）
 #       并确保 ~/.config/mcp-hub/servers.json（chmod 600）与 .env 存在

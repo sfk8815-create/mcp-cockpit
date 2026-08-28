@@ -1,4 +1,4 @@
-# mcp-hub-web 管理台 user service 模板
+# mcp-hub-web 管理台 user service 模板（仅 Linux；Windows 请用 scripts/start-windows.bat）
 # 安装：cp mcp-hub-web.service ~/.config/systemd/user/ && systemctl --user daemon-reload
 # 注意：修改 ExecStart 中 node 与项目目录路径（示例为 mise 安装位置）
 
