@@ -574,8 +574,8 @@ mcp-cockpit/
 
 ### License
 
-MIT © Sovena contributors, 西南大学·艺术人类学研究所 (Institute of Art Anthropology, Southwest University), 西南大学·中国音乐心理健康研究所 (China Music Mental Health Research Institute, Southwest University)
-Author: 石丰恺 (sfklc@hotmail.com). Full text in [LICENSE](LICENSE).
+MIT © Sovena contributors, Institute of Art Anthropology (西南大学·艺术人类学研究所), China Music Mental Health Research Institute (西南大学·中国音乐心理健康研究所) — Southwest University
+Author: Shi Fengkai（石丰恺）, sfklc@hotmail.com. Full text in [LICENSE](LICENSE).
 
 ### Acknowledgments
 
